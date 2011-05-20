@@ -109,17 +109,15 @@ def process_file(audio, ext, copyTo, origFile):
     if title:
         filename += title + ext
     
-    filename = filename.replace("/","_")
-    artist = artist.replace("/", "_")
-    album = album.replace("/", "_")
     
-    filename = filename.replace("\\","_")
-    artist = artist.replace("\\", "_")
-    album = album.replace("\\", "_")
+    bad_chars = {"/", "\\", ":", ">", "<", "*", "?"}
     
-    filename = filename.replace(":","_")
-    artist = artist.replace(":", "_")
-    album = album.replace(":", "_")
+    for bad in bad_chars:
+        filename = filename.replace(bad,"_")
+        artist = artist.replace(bad, "_")
+        album = album.replace(bad, "_")
+    
+    
     
     finalPath = os.path.join(copyTo, artist, album, filename)
     
