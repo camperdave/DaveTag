@@ -1,0 +1,11 @@
+DaveTag - automatically move music files to where they belong, based on their metadata
+Copyright (C) 2011  David Lee (aka camperdave)
+
+As it says on the tin, this is a simple script to move music files around based on their metadata. I loved this feature in iTunes, so I wrote a python script to simulate it for use with other media players (especially foobar2000)
+
+
+TODO:
+
+* Get music files in other formats and test it with them - it's probably 90% compatible with ogg, flac, ape etc etc
+* Uses depreciated m4a class rather than mp4, because I'm lazy. Fix this.
+* Bad characters in filename / paths are handled terribly. Fix exentually?
