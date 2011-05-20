@@ -26,7 +26,7 @@ from mutagen.m4a import M4A
 
 
 def process_dir(dir, copyTo):
-    print("dir: " + dir)
+    print(u"dir: " + dir)
     
     for root, dirs, files in os.walk(dir):
         for file in files:
@@ -40,107 +40,112 @@ def process_dir(dir, copyTo):
                 if ext == ".m4a":
                     audio = M4A(infile)
                     process_file(audio, ".m4a", copyTo, infile)
-
         
 def process_file(audio, ext, copyTo, origFile):
-    artist = audio.get("albumartistsort", {})
-    if not artist:
-        artist = audio.get("artist", {})
+    try:
+        print(u"Processing: " + origFile)
+        artist = audio.get("albumartistsort", {})
         if not artist:
-            artist = audio.get('aART', {})
+            artist = audio.get("artist", {})
             if not artist:
-                artist = audio.get('\xa9ART', {})
+                artist = audio.get('aART', {})
                 if not artist:
-                    artist = ""
+                    artist = audio.get('\xa9ART', {})
+                    if not artist:
+                        artist = ""
+            else:
+                artist = artist[0]
         else:
             artist = artist[0]
-    else:
-        artist = artist[0]
-    
-    print("Artist: " + artist)
-    
-    album = audio.get("album", {})
-    if not album:
-        album = audio.get('\xa9alb', {})
-        if not album:
-            album = ""
-    else:
-        album = album[0]
-    
-    title = audio.get("title", {})
-    if not title:
-        title = audio.get('\xa9nam', {})
-        if not album:
-            title = ""
-    else:
-        title = title[0]
-    
-    tracknum = audio.get("tracknumber", {})
-    if not tracknum:
-        tracknum = audio.get("trkn", {})
-        if not tracknum:
-            tracknum = ""
-        else:
-            tracknum = str(tracknum[0])
-    else:
-        tracknum = tracknum[0]
-    
-    discnum = audio.get("discnubmer", {})
-    if not discnum:
-        discnum = audio.get("disk", {})
-        if not discnum:
-            discnum = ""
-        else:
-            discnum = str(discnum[0])
-    else:
-        discnum = discnum[0]
-    
-    
-    filename = ""
-    if discnum:
-        filename += discnum + "-"
-    if tracknum:
-        if tracknum.count("/") > 0:
-            filename += tracknum[:tracknum.index("/")]
-        else:
-            filename += tracknum
         
-        filename += " "
-    if title:
-        filename += title + ext
-    
-    
-    bad_chars = {"/", "\\", ":", ">", "<", "*", "?"}
-    
-    for bad in bad_chars:
-        filename = filename.replace(bad,"_")
-        artist = artist.replace(bad, "_")
-        album = album.replace(bad, "_")
-    
-    
-    
-    finalPath = os.path.join(copyTo, artist, album, filename)
-    
-    if finalPath == origFile:
-        print("File " + finalPath + " is correctly placed!")
-    else:
-        print("Moving file from " + origFile + " to " + finalPath)
-        if os.path.isfile(finalPath):
-            print("Error: would overwrite file!")
+        album = audio.get("album", {})
+        if not album:
+            album = audio.get('\xa9alb', {})
+            if not album:
+                album = ""
         else:
-            if not os.path.isdir(os.path.split(finalPath)[0]):
-                os.makedirs(os.path.split(finalPath)[0])
-            shutil.move(origFile, finalPath)
-            print("File successfully moved to " + finalPath)
-    
-    
-    
-    
-    print("###################################")
+            album = album[0]
+        
+        title = audio.get("title", {})
+        if not title:
+            title = audio.get('\xa9nam', {})
+            if not album:
+                title = ""
+        else:
+            title = title[0]
+        
+        tracknum = audio.get("tracknumber", {})
+        if not tracknum:
+            tracknum = audio.get("trkn", {})
+            if not tracknum:
+                tracknum = ""
+            else:
+                tracknum = str(tracknum[0])
+        else:
+            tracknum = tracknum[0]
+        
+        discnum = audio.get("discnubmer", {})
+        if not discnum:
+            discnum = audio.get("disk", {})
+            if not discnum:
+                discnum = ""
+            else:
+                discnum = str(discnum[0])
+        else:
+            discnum = discnum[0]
+        
+        
+        filename = ""
+        if discnum:
+            filename += discnum + "-"
+        if tracknum:
+            if tracknum.count("/") > 0:
+                filename += tracknum[:tracknum.index("/")]
+            else:
+                filename += tracknum
+            
+            filename += " "
+        if title:
+            filename += title + ext
+        
+        
+        bad_chars = {"/", "\\", ":", ">", "<", "*", "?", "\""}
+        
+        for bad in bad_chars:
+            filename = filename.replace(bad,"_")
+            artist = artist.replace(bad, "_")
+            album = album.replace(bad, "_")
+        
+        
+        
+        finalPath = os.path.join(copyTo, artist, album, filename)
+        
+        if finalPath == origFile:
+            print("File " + finalPath + " is correctly placed!")
+        else:
+            print("Moving file from " + origFile + " to " + finalPath)
+            if os.path.isfile(finalPath):
+                print("Error: would overwrite file!")
+            else:
+                if not os.path.isdir(os.path.split(finalPath)[0]):
+                    os.makedirs(os.path.split(finalPath)[0])
+                shutil.move(origFile, finalPath)
+                print("File successfully moved to " + finalPath)
+        
+        
+        
+        
+        print("###################################")
+        
+        
+    except UnicodeEncodeError:
+                print("Had trouble with a UnicodeEncodeError!")
+                print(origFile.encode("utf-8"))
+                raw_input("Press Enter to continue...")                     # Change to input(...) if on python3
 
 if len(sys.argv) == 2:    
-    process_dir(sys.argv[1], "C:\\Users\\Public\\Music")
+    process_dir(sys.argv[1], u"C:\\Users\\Public\\Music")
 elif len(sys.argv) >= 3:
     process_dir(sys.argv[1], sys.argv[2])
 else:
-    process_dir(os.getcwd(), "C:\\Users\\Public\\Music")
+    process_dir(os.getcwdu(), u"C:\\Users\\Public\\Music")
