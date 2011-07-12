@@ -144,8 +144,8 @@ def process_file(audio, ext, copyTo, origFile):
                 raw_input("Press Enter to continue...")                     # Change to input(...) if on python3
 
 if len(sys.argv) == 2:    
-    process_dir(sys.argv[1], u"C:\\Users\\Public\\Music")
+    process_dir(sys.argv[1], u"E:\\Music")
 elif len(sys.argv) >= 3:
     process_dir(sys.argv[1], sys.argv[2])
 else:
-    process_dir(os.getcwdu(), u"C:\\Users\\Public\\Music")
+    process_dir(os.getcwdu(), u"E:\\Music")
