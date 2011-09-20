@@ -26,6 +26,7 @@ from mutagen.m4a import M4A
 
 
 def process_dir(dir, copyTo):
+    dir = unicode(dir)
     print(u"dir: " + dir)
     
     for root, dirs, files in os.walk(dir):
@@ -48,15 +49,15 @@ def process_file(audio, ext, copyTo, origFile):
         if not artist:
             artist = audio.get("artist", {})
             if not artist:
-                artist = audio.get('aART', {})
+                artist = audio.get('aART', {}).strip()
                 if not artist:
-                    artist = audio.get('\xa9ART', {})
+                    artist = audio.get('\xa9ART', {}).strip()
                     if not artist:
                         artist = ""
             else:
-                artist = artist[0]
+                artist = artist[0].strip()
         else:
-            artist = artist[0]
+            artist = artist[0].strip()
         
         album = audio.get("album", {})
         if not album:
@@ -64,15 +65,15 @@ def process_file(audio, ext, copyTo, origFile):
             if not album:
                 album = ""
         else:
-            album = album[0]
+            album = album[0].strip()
         
         title = audio.get("title", {})
         if not title:
-            title = audio.get('\xa9nam', {})
+            title = audio.get('\xa9nam', {}).strip()
             if not album:
                 title = ""
         else:
-            title = title[0]
+            title = title[0].strip()
         
         tracknum = audio.get("tracknumber", {})
         if not tracknum:
@@ -80,9 +81,9 @@ def process_file(audio, ext, copyTo, origFile):
             if not tracknum:
                 tracknum = ""
             else:
-                tracknum = str(tracknum[0])
+                tracknum = str(tracknum[0]).strip()
         else:
-            tracknum = tracknum[0]
+            tracknum = tracknum[0].strip()
         
         discnum = audio.get("discnubmer", {})
         if not discnum:
@@ -90,9 +91,9 @@ def process_file(audio, ext, copyTo, origFile):
             if not discnum:
                 discnum = ""
             else:
-                discnum = str(discnum[0])
+                discnum = str(discnum[0]).strip()
         else:
-            discnum = discnum[0]
+            discnum = discnum[0].strip()
         
         
         filename = ""
