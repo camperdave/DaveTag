@@ -69,8 +69,8 @@ def process_file(audio, ext, copyTo, origFile):
         
         title = audio.get("title", {})
         if not title:
-            title = audio.get('\xa9nam', {}).strip()
-            if not album:
+            title = audio.get('\xa9nam', {})
+            if not title:
                 title = ""
         else:
             title = title[0].strip()
