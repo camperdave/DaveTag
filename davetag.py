@@ -17,11 +17,12 @@
 import os
 import glob
 import sys
+import codecs
 import shutil
 
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
-from mutagen.m4a import M4A
+from mutagen.mp4 import MP4
 
 
 
@@ -39,92 +40,110 @@ def process_dir(dir, copyTo):
                     audio = MP3(infile, ID3=EasyID3)
                     process_file(audio, ".mp3", copyTo, infile)
                 if ext == ".m4a":
-                    audio = M4A(infile)
+                    audio = MP4(infile)
                     process_file(audio, ".m4a", copyTo, infile)
         
 def process_file(audio, ext, copyTo, origFile):
     try:
+        origFile = unicode(origFile)
         print(u"Processing: " + origFile)
         artist = audio.get("albumartistsort", {})
         if not artist:
             artist = audio.get("artist", {})
             if not artist:
-                artist = audio.get('aART', {}).strip()
+                artist = audio.get('aART', {})
                 if not artist:
-                    artist = audio.get('\xa9ART', {}).strip()
+                    artist = audio.get('\xa9ART', {})
                     if not artist:
                         artist = ""
-            else:
-                artist = artist[0].strip()
+
+        if isinstance(artist, str) or isinstance(artist, unicode):
+            artist = unicode(artist.strip())
         else:
-            artist = artist[0].strip()
+            artist = unicode(artist[0].strip())
         
         album = audio.get("album", {})
         if not album:
             album = audio.get('\xa9alb', {})
             if not album:
                 album = ""
+
+        if isinstance(album, str) or isinstance(album, unicode):
+            album = unicode(album.strip())
         else:
-            album = album[0].strip()
+            album = unicode(album[0].strip())
         
         title = audio.get("title", {})
         if not title:
             title = audio.get('\xa9nam', {})
             if not title:
                 title = ""
+
+        if isinstance(title, str) or isinstance(title, unicode):
+            title = unicode(title.strip())
         else:
-            title = title[0].strip()
+            title = unicode(title[0].strip())
         
         tracknum = audio.get("tracknumber", {})
         if not tracknum:
             tracknum = audio.get("trkn", {})
             if not tracknum:
                 tracknum = ""
-            else:
-                tracknum = str(tracknum[0]).strip()
+
+        if isinstance(tracknum, str) or isinstance(tracknum, unicode):
+            tracknum = unicode(str(tracknum).strip())
         else:
-            tracknum = tracknum[0].strip()
+            tracknum = unicode(str(tracknum[0]).strip())
         
         discnum = audio.get("discnubmer", {})
         if not discnum:
             discnum = audio.get("disk", {})
             if not discnum:
                 discnum = ""
-            else:
-                discnum = str(discnum[0]).strip()
+        
+        if isinstance(discnum, str) or isinstance(discnum, unicode):
+            discnum = unicode(str(discnum).strip())
         else:
-            discnum = discnum[0].strip()
+            discnum = unicode(str(discnum[0]).strip())
         
-        
-        filename = ""
+        filename = unicode("")
         if discnum:
-            filename += discnum + "-"
+            filename += discnum + u"-"
         if tracknum:
             if tracknum.count("/") > 0:
                 filename += tracknum[:tracknum.index("/")]
             else:
                 filename += tracknum
             
-            filename += " "
+            filename += u" "
         if title:
             filename += title + ext
-        
-        
-        bad_chars = {"/", "\\", ":", ">", "<", "*", "?", "\""}
+
+        if filename == u"":
+            # Fall back on original file name!
+            filename = os.path.basename(origFile)
+
+        bad_chars = {"/", "\\", ":", ">", "<", "*", "?", "\"", "|"}
         
         for bad in bad_chars:
             filename = filename.replace(bad,"_")
             artist = artist.replace(bad, "_")
             album = album.replace(bad, "_")
         
-        
+
+        # Folders can't end in .
+        if artist[-1:] == '.':
+            artist += u"_"
+
+        if album[-1:] == '.':
+            album += u"_"
         
         finalPath = os.path.join(copyTo, artist, album, filename)
         
         if finalPath == origFile:
             print("File " + finalPath + " is correctly placed!")
         else:
-            print("Moving file from " + origFile + " to " + finalPath)
+            print(u"Moving file from " + origFile + u" to " + finalPath)
             if os.path.isfile(finalPath):
                 print("Error: would overwrite file!")
             else:
@@ -140,13 +159,19 @@ def process_file(audio, ext, copyTo, origFile):
         
         
     except UnicodeEncodeError:
-                print("Had trouble with a UnicodeEncodeError!")
-                print(origFile.encode("utf-8"))
-                raw_input("Press Enter to continue...")                     # Change to input(...) if on python3
+        print("Had trouble with a UnicodeEncodeError!")
+        print(origFile.encode("utf-8"))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]      
+        print(exc_type, fname, exc_tb.tb_lineno)
+        raw_input("Press Enter to continue...")                     # Change to input(...) if on python3
+
+# See http://kbyanc.blogspot.com/2007/04/python-printing-unicode.html
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 if len(sys.argv) == 2:    
-    process_dir(sys.argv[1], u"E:\\Music")
+    process_dir(sys.argv[1], u"H:\\Music")
 elif len(sys.argv) >= 3:
     process_dir(sys.argv[1], sys.argv[2])
 else:
-    process_dir(os.getcwdu(), u"E:\\Music")
+    process_dir(os.getcwdu(), u"H:\\Music")
